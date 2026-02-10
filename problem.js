@@ -9,7 +9,7 @@ class problem {
   static allowAlgebra = true;
 
   static BLINK_DURATION = 30;
-  static BLINK_RATE = 5;
+  static BLINK_RATE = 5; 
 
   static setAllowAddition(v) { Problem.allowAdd = v; }
   static setAllowSubtraction(v) { Problem.allowSub = v; }
