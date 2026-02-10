@@ -9,7 +9,7 @@ class projectile {
     const length = Math.hypot(dirX, dirY) || 1;
     this.dx = (dirX / length) * this.speed;
     this.dy = (dirY / length) * this.speed;
-
+ 
     this.font = "bold 18px Arial";
   }
 
