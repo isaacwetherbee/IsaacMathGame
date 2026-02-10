@@ -267,5 +267,11 @@ function loop() {
 
     requestAnimationFrame(loop);
 }
+console.log(
+    "Player:", typeof Player,
+    "Star:", typeof Star,
+    "Problem:", typeof Problem,
+    "Projectile:", typeof Projectile
+);
 
 loop();
