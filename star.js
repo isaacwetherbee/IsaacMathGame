@@ -1,4 +1,4 @@
-class Star {
+class star {
     constructor(panelWidth, panelHeight) {
         this.x = Math.floor(Math.random() * panelWidth);
         this.y = Math.floor(Math.random() * panelHeight);
