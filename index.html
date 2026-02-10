@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Isaac Math Game</title>
-  <style>
-    body {
-      margin: 0;
-      background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    canvas {
-      background: black;
-      border: 2px solid white;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Isaac Math Game</title>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <script src="js/game.js"></script>
+
+    <canvas id="game"></canvas>
+
+    <!-- IMPORTANT: link your JS file here -->
+    <script src="game.js"></script>
+
 </body>
 </html>
