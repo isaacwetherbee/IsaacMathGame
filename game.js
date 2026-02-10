@@ -162,3 +162,26 @@ function drawGameScreen() {
   projectiles.forEach(p => p.draw(ctx));
   problems.forEach(p => p.draw(ctx));
 }
+
+document.addEventListener("keydown", e => {
+  if (e.key === "a" || e.key === "ArrowLeft") LeftKey = true;
+  if (e.key === "d" || e.key === "ArrowRight") RightKey = true;
+
+  if (GameState === 2 && e.key >= "0" && e.key <= "9") {
+    shootDigit(Number(e.key));
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "a" || e.key === "ArrowLeft") LeftKey = false;
+  if (e.key === "d" || e.key === "ArrowRight") RightKey = false;
+});
+
+function loadHighScores() {
+  return JSON.parse(localStorage.getItem("highScores") || "[]");
+}
+
+function saveHighScores(scores) {
+  localStorage.setItem("highScores", JSON.stringify(scores));
+}
+window.onload = init;
