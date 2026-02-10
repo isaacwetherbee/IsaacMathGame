@@ -1,4 +1,4 @@
-class Problem {
+class problem {
   // ======================
   // Static config / toggles
   // ======================
