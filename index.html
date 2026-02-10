@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <title>Isaac Math Game</title>
-
     <style>
         body {
             margin: 0;
-            overflow: hidden;
             background: black;
+            overflow: hidden;
         }
-
         canvas {
             display: block;
         }
@@ -18,10 +16,16 @@
 </head>
 <body>
 
-    <canvas id="game"></canvas>
+<canvas id="game"></canvas>
 
-    <!-- IMPORTANT: link your JS file here -->
-    <script src="game.js"></script>
+<!-- Load classes FIRST -->
+<script src="Star.js"></script>
+<script src="Player.js"></script>
+<script src="Projectile.js"></script>
+<script src="Problem.js"></script>
+
+<!-- Main game last -->
+<script src="game.js"></script>
 
 </body>
 </html>
