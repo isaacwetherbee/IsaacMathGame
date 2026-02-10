@@ -1,4 +1,4 @@
-class Projectile {
+class projectile {
   constructor(startX, startY, dirX, dirY, digit) {
     this.position = { x: startX, y: startY };
     this.digit = digit;
