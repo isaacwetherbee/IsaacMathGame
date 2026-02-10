@@ -3,7 +3,9 @@ const ctx = canvas.getContext("2d");
 
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
-
+const SPAWN_Y_LIMIT = 60;
+const PROBLEM_WIDTH = 140;
+const H_PADDING = 10;
 // ======================
 // Game state
 // ======================
@@ -81,17 +83,26 @@ function update(dt) {
   }
 
   // -------- Spawn problems --------
-  const MIN_SPAWN_TIME = 50 + (100 / (0.0003 * frames + 1));
-  const maxSpawnTime = MIN_SPAWN_TIME + (100 + (1000 / (1 + frames)));
+  const MIN_SPAWN_TIME = 45 + (100 / (0.003 * frames + 1));
+const maxSpawnTime =
+  MIN_SPAWN_TIME + (100 + (1000 / (1 + frames)));
 
-  const timeSinceLast = frames - lastSpawnFrame;
-  const spawnRate = 0.01 + 0.00015 * frames;
+const timeSinceLast = frames - lastSpawnFrame;
 
-  if (timeSinceLast >= maxSpawnTime || (timeSinceLast >= MIN_SPAWN_TIME && Math.random() < spawnRate)) {
+if (timeSinceLast < MIN_SPAWN_TIME) {
+  // too soon, do nothing
+} else if (timeSinceLast >= maxSpawnTime) {
+  spawnProblem();
+  score++;
+  lastSpawnFrame = frames;
+} else {
+  if (Math.random() < spawnRate) {
     spawnProblem();
     score++;
     lastSpawnFrame = frames;
   }
+}
+
 
   // -------- Update objects --------
   problems.forEach(p => p.update(dt));
@@ -184,4 +195,56 @@ function loadHighScores() {
 function saveHighScores(scores) {
   localStorage.setItem("highScores", JSON.stringify(scores));
 }
+function rectsIntersect(a, b) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  );
+}
+function spawnProblem() {
+  const blocked = [];
+
+  // Build blocked regions
+  for (const p of problems) {
+    if (p.getY() < SPAWN_Y_LIMIT) {
+      blocked.push({
+        x: p.getX() - H_PADDING,
+        y: 0,
+        w: PROBLEM_WIDTH + H_PADDING * 2,
+        h: 1
+      });
+    }
+  }
+
+  const freeXs = [];
+  let x = 0;
+
+  while (x + PROBLEM_WIDTH < WIDTH) {
+    let free = true;
+
+    for (const r of blocked) {
+      if (
+        x < r.x + r.w &&
+        x + PROBLEM_WIDTH > r.x
+      ) {
+        free = false;
+        x = r.x + r.w; // skip past blocked region
+        break;
+      }
+    }
+
+    if (free) {
+      freeXs.push(x);
+      x += PROBLEM_WIDTH;
+    }
+  }
+
+  if (freeXs.length === 0) return;
+
+  const spawnX = freeXs[Math.floor(Math.random() * freeXs.length)];
+  problems.push(new Problem(spawnX, 0));
+}
+
 window.onload = init;
