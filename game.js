@@ -37,7 +37,7 @@ let lastTime = performance.now();
 // Init
 // ======================
 function init() {
-  player = new Player(100, HEIGHT - 40);
+  player = new player(100, HEIGHT - 40);
 
   for (let i = 0; i < 50; i++) {
     stars.push(new Star(WIDTH, HEIGHT));
@@ -93,12 +93,12 @@ const timeSinceLast = frames - lastSpawnFrame;
 if (timeSinceLast < MIN_SPAWN_TIME) {
   // too soon, do nothing
 } else if (timeSinceLast >= maxSpawnTime) {
-  spawnProblem();
+  spawnproblem();
   score++;
   lastSpawnFrame = frames;
 } else {
   if (Math.random() < spawnRate) {
-    spawnProblem();
+    spawnproblem();
     score++;
     lastSpawnFrame = frames;
   }
@@ -204,7 +204,7 @@ function rectsIntersect(a, b) {
     a.y + a.h > b.y
   );
 }
-function spawnProblem() {
+function spawnproblem() {
   const blocked = [];
 
   // Build blocked regions
@@ -245,7 +245,7 @@ function spawnProblem() {
   if (freeXs.length === 0) return;
 
   const spawnX = freeXs[Math.floor(Math.random() * freeXs.length)];
-  problems.push(new Problem(spawnX, 0));
+  problems.push(new problem(spawnX, 0));
 }
 
 window.onload = init;
@@ -268,10 +268,10 @@ function loop() {
     requestAnimationFrame(loop);
 }
 console.log(
-    "Player:", typeof player,
+    "player:", typeof player,
     "Star:", typeof star,
-    "Problem:", typeof problem,
-    "Projectile:", typeof projectile
+    "problem:", typeof problem,
+    "projectile:", typeof projectile
 );
 
 loop();
