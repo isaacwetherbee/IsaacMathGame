@@ -250,10 +250,7 @@ function spawnproblem() {
 
 window.onload = init;
 */
-import { Player } from './player.js';
-import { Star } from './star.js';
-import { Problem } from './problem.js';
-import { Projectile } from './projectile.js';
+
 
 const canvas = document.getElementById("game");
 console.log("Canvas:", canvas);
