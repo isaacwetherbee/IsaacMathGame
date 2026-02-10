@@ -269,7 +269,7 @@ function loop() {
 }
 console.log(
     "player:", typeof player,
-    "Star:", typeof star,
+    "star:", typeof star,
     "problem:", typeof problem,
     "projectile:", typeof projectile
 );
