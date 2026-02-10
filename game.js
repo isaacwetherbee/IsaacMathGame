@@ -251,27 +251,39 @@ function spawnproblem() {
 window.onload = init;
 */
 const canvas = document.getElementById("game");
+console.log("Canvas:", canvas);
+
 const ctx = canvas.getContext("2d");
+console.log("Context:", ctx);
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// SAFE class existence check
+console.log(
+    "player class:", typeof window.player,
+    "star class:", typeof window.star,
+    "problem class:", typeof window.problem,
+    "projectile class:", typeof window.projectile
+);
 
-console.log("Game loaded");
+// ACTUAL INSTANTIATION TEST
+let testPlayer = null;
+
+if (typeof window.player === "function") {
+    testPlayer = new player(400, 300);
+    console.log("Player instance created:", testPlayer);
+} else {
+    console.error("player class NOT loaded");
+}
 
 function loop() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "red";
-    ctx.fillRect(100, 100, 50, 50);
+    if (testPlayer) {
+        testPlayer.draw(ctx);
+    }
 
     requestAnimationFrame(loop);
 }
-console.log(
-    "player:", typeof player,
-    "star:", typeof star,
-    "problem:", typeof problem,
-    "projectile:", typeof projectile
-);
 
 loop();
+
