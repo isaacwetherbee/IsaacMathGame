@@ -268,10 +268,10 @@ function loop() {
     requestAnimationFrame(loop);
 }
 console.log(
-    "Player:", typeof Player,
-    "Star:", typeof Star,
-    "Problem:", typeof Problem,
-    "Projectile:", typeof Projectile
+    "Player:", typeof player,
+    "Star:", typeof star,
+    "Problem:", typeof problem,
+    "Projectile:", typeof projectile
 );
 
 loop();
