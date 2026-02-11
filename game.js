@@ -1,285 +1,292 @@
-// Create player at (100, 100)
-const player = new Player(100, 100);
+//Global variables
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let leftKey = false;
+let rightKey = false;
+let GameState = 0;
 
-// Log initial position
-console.log("Initial Position:");
-console.log("X:", player.getX(), "Y:", player.getY());
+// Set the canvas size
+canvas.width = 800;   // desired width
+canvas.height = 600;  // desired height
 
-// Move player
-player.move(25, -10);
-
-// Log new position
-console.log("After Move:");
-console.log("X:", player.getX(), "Y:", player.getY());
-
-
-/*
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
-const SPAWN_Y_LIMIT = 60;
-const PROBLEM_WIDTH = 140;
-const H_PADDING = 10;
-// ======================
-// Game state
-// ======================
-let GameState = 1; // 1=start, 2=playing, 3=game over, 4=leaderboard, 5=initials
-
-let player;
-let projectiles = [];
-let problems = [];
-let stars = [];
-
-let LeftKey = false;
-let RightKey = false;
-let direction = 0;
-
-let score = 0;
-let health = 100;
-const maxHealth = 100;
-
-let frames = 0;
-let lastSpawnFrame = 0;
-
+//projectile variables
+let projectiles = []; // array to hold Projectile objects
 let lastShotTime = 0;
-const SHOOT_COOLDOWN_MS = 100;
+const SHOOT_COOLDOWN_MS = 100; // 100ms cooldown between shots
+//problem variables
+let problems = [];
+const PROBLEM_WIDTH = 80;
+const SPAWN_Y_LIMIT = 150; // Y position to check for blocking
+const H_PADDING = 10; // horizontal padding between problems
+lastSpawnTime = 0;
+let frames = 0;
+let score = 0;
+let deltaTime = 0.016; // approx 60 FPS
 
-let lastTime = performance.now();
+//Testing player class
+console.log("Hello, World! Welcome to Isaac's Math Game!");
 
-// ======================
-// Init
-// ======================
-function init() {
-  player = new player(100, HEIGHT - 40);
+const p = new player(100, 100);
 
-  for (let i = 0; i < 50; i++) {
-    stars.push(new Star(WIDTH, HEIGHT));
-  }
+p.position = { x: 150, y: canvas.height - p.getSize() - 20 }; // Start near the bottom of the canvas
 
-  requestAnimationFrame(loop);
-}
+console.log("Player position: (" + p.getX() + ", " + p.getY() + ")");
 
-// ======================
-// Main loop
-// ======================
-function loop(time) {
-  const deltaTime = (time - lastTime) / 1000;
-  lastTime = time;
+p.move(10, 15);
 
-  update(deltaTime);
-  draw();
+console.log("Player position after moving: (" + p.getX() + ", " + p.getY() + ")");
 
-  requestAnimationFrame(loop);
-}
+gameLoop();
 
-// ======================
-// Update
-// ======================
-function update(dt) {
-  frames++;
-
-  stars.forEach(s => s.update(HEIGHT));
-
-  if (GameState !== 2) return;
-
-  // -------- Movement --------
-  const speed = 10;
-  if (RightKey) direction = 1;
-  if (LeftKey) direction = -1;
-  if (!LeftKey && !RightKey) direction = 0;
-
-  const dx = speed * direction * dt * 60;
-  const nextLeft = player.x - player.size / 2 + dx;
-  const nextRight = player.x + player.size / 2 + dx;
-
-  if (nextLeft > 0 && nextRight < WIDTH) {
-    player.move(dx, 0);
-  }
-
-  // -------- Spawn problems --------
-  const MIN_SPAWN_TIME = 45 + (100 / (0.003 * frames + 1));
-const maxSpawnTime =
-  MIN_SPAWN_TIME + (100 + (1000 / (1 + frames)));
-
-const timeSinceLast = frames - lastSpawnFrame;
-
-if (timeSinceLast < MIN_SPAWN_TIME) {
-  // too soon, do nothing
-} else if (timeSinceLast >= maxSpawnTime) {
-  spawnproblem();
-  score++;
-  lastSpawnFrame = frames;
-} else {
-  if (Math.random() < spawnRate) {
-    spawnproblem();
-    score++;
-    lastSpawnFrame = frames;
-  }
-}
+console.log('projectile class exists:', typeof projectile);
 
 
-  // -------- Update objects --------
-  problems.forEach(p => p.update(dt));
-  projectiles.forEach(p => p.update());
+//shootDigit(5); // Test shooting a digit projectile
 
-  projectiles = projectiles.filter(p => !p.isOffScreen(WIDTH, HEIGHT));
+// Game loop
+function gameLoop() {
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Update player position
+    if (leftKey){p.move(-5, 0);console.log("Left key pressed, moving left..."); } 
+    if (rightKey){p.move(5, 0);console.log("Right key pressed, moving right..."); } 
 
-  // -------- Collisions --------
-  projectiles = projectiles.filter(proj => {
+    for (let p of projectiles) {
+    p.update();
+    p.draw(ctx);
+    }
+    frames++;
+    trySpawnProblem();
+    for (let p of problems) {
+    p.update(0.009);
+    //console.log(`Drawing problem at (${p.x}, ${p.y}): ${p.problemText}`);
+    p.draw(ctx);
+    }
+
+    projectiles = projectiles.filter(proj => {
+    // Check collision against all problems
     for (let prob of problems) {
-      if (rectsIntersect(proj.getBounds(), prob.getBounds())) {
-        if (!prob.isCorrect && prob.acceptDigitAnywhere(proj.digit)) {
-          if (prob.isSolved()) {
-            score += 10;
-            prob.isCorrect = true;
-            prob.blinkFrames = 0;
-          }
+        const projBounds = proj.getBounds();
+        const probBounds = prob.getBounds();
+
+        // Check intersection
+        const intersects = !(
+        projBounds.x + projBounds.width < probBounds.x ||
+        projBounds.x > probBounds.x + probBounds.width ||
+        projBounds.y + projBounds.height < probBounds.y ||
+        projBounds.y > probBounds.y + probBounds.height
+        );
+
+
+        if (intersects) {
+            // Handle correct digit entry
+            if (!prob.isCorrect && prob.acceptDigitAnywhere(proj.getDigit())) {
+                if (prob.isSolved()) {
+                    addScore(10);
+                    //if (CorrectSoundEffect) CorrectSoundEffect.play();
+
+                    // Start blink animation
+                    prob.isCorrect = true;
+                    prob.blinkFrames = 0;
+                }
+            }
+
+            // Projectile disappears after collision
+            return false; 
         }
-        return false;
-      }
     }
+
+    // Keep projectile if no collision
     return true;
-  });
+    });
+    problems = problems.filter(p => {
+    // Update problem position
+    
 
-  // -------- Lose health --------
-  problems = problems.filter(p => {
-    if (p.y > HEIGHT) {
-      health -= 10;
-      return false;
+    if (p.isCorrect) {
+        p.blinkFrames++;
+
+        // Remove if blink animation finished
+        if (p.blinkFrames >= problem.BLINK_DURATION) {
+            return false; // remove this problem
+        }
+
+        return true; // keep problem until blink finishes
     }
-    return true;
-  });
 
-  if (health <= 0) {
-    GameState = 3;
-  }
-}
+    return true; // keep problems that aren't correct
+    });
+    for (let prob of problems) {
+    const probBounds = prob.getBounds();
+    const playerBounds = p.getBounds();
 
-// ======================
-// Draw
-// ======================
-function draw() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    // Rectangle intersection check
+    const intersects = !(
+        probBounds.x + probBounds.width < playerBounds.x ||
+        probBounds.x > playerBounds.x + playerBounds.width ||
+        probBounds.y + probBounds.height < playerBounds.y ||
+        probBounds.y > playerBounds.y + playerBounds.height
+    );
 
-  stars.forEach(s => s.draw(ctx));
-
-  if (GameState === 1) drawStartScreen();
-  if (GameState === 2) drawGameScreen();
-  if (GameState === 3) drawGameOverScreen();
-}
-
-// ======================
-// Screens
-// ======================
-function drawGameScreen() {
-  ctx.fillStyle = "orange";
-  ctx.font = "24px Arial";
-  ctx.fillText("Score: " + score, WIDTH - 150, 30);
-
-  // Health bar
-  ctx.fillStyle = "#333";
-  ctx.fillRect(50, HEIGHT - 5, WIDTH - 100, 5);
-
-  ctx.fillStyle = "red";
-  ctx.fillRect(50, HEIGHT - 5, (WIDTH - 100) * (health / maxHealth), 5);
-
-  player.draw(ctx);
-  projectiles.forEach(p => p.draw(ctx));
-  problems.forEach(p => p.draw(ctx));
-}
-
-document.addEventListener("keydown", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") LeftKey = true;
-  if (e.key === "d" || e.key === "ArrowRight") RightKey = true;
-
-  if (GameState === 2 && e.key >= "0" && e.key <= "9") {
-    shootDigit(Number(e.key));
-  }
-});
-
-document.addEventListener("keyup", e => {
-  if (e.key === "a" || e.key === "ArrowLeft") LeftKey = false;
-  if (e.key === "d" || e.key === "ArrowRight") RightKey = false;
-});
-
-function loadHighScores() {
-  return JSON.parse(localStorage.getItem("highScores") || "[]");
-}
-
-function saveHighScores(scores) {
-  localStorage.setItem("highScores", JSON.stringify(scores));
-}
-function rectsIntersect(a, b) {
-  return (
-    a.x < b.x + b.w &&
-    a.x + a.w > b.x &&
-    a.y < b.y + b.h &&
-    a.y + a.h > b.y
-  );
-}
-function spawnproblem() {
-  const blocked = [];
-
-  // Build blocked regions
-  for (const p of problems) {
-    if (p.getY() < SPAWN_Y_LIMIT) {
-      blocked.push({
-        x: p.getX() - H_PADDING,
-        y: 0,
-        w: PROBLEM_WIDTH + H_PADDING * 2,
-        h: 1
-      });
-    }
-  }
-
-  const freeXs = [];
-  let x = 0;
-
-  while (x + PROBLEM_WIDTH < WIDTH) {
-    let free = true;
-
-    for (const r of blocked) {
-      if (
-        x < r.x + r.w &&
-        x + PROBLEM_WIDTH > r.x
-      ) {
-        free = false;
-        x = r.x + r.w; // skip past blocked region
+    if (intersects && !p.isCorrect) {
+        gameOver = true;
+        GameState = 3;
+        console.log("Game Over! Final Score: " + score);
         break;
-      }
+        
     }
-
-    if (free) {
-      freeXs.push(x);
-      x += PROBLEM_WIDTH;
-    }
-  }
-
-  if (freeXs.length === 0) return;
-
-  const spawnX = freeXs[Math.floor(Math.random() * freeXs.length)];
-  problems.push(new problem(spawnX, 0));
 }
 
-window.onload = init;
-*/
 
-/*
-const canvas = document.getElementById("game");
-console.log("Canvas:", canvas);
 
-const ctx = canvas.getContext("2d");
-console.log("Context:", ctx);
+    // Draw player
+    p.draw(ctx);
 
-// SAFE class existence check
-console.log(
-    "player class:", typeof window.player,
-    "star class:", typeof window.star,
-    "problem class:", typeof window.problem,
-    "projectile class:", typeof window.projectile
-);
-__________________________________________________________
-*/
+    // Next frame
+    requestAnimationFrame(gameLoop);
+}
 
+
+
+
+function addScore(s) { score += s; }
+
+// ======================
+// Shoot projectile
+// ======================   
+function shootDigit(digit) {
+    const currentTime = Date.now(); // JS equivalent of System.currentTimeMillis()
+    if (currentTime - lastShotTime < SHOOT_COOLDOWN_MS) return;
+
+    //Sound effect for shooting (not implemented yet, but can add it here)
+    //if (Lazer) Lazer.play();
+
+    lastShotTime = currentTime;
+
+    const tipX = p.position.x;           // player's x
+    const tipY = p.position.y - p.size/2; // tip of the triangle
+ 
+    // Create new projectile and add to array
+    const proj = new projectile(tipX, tipY, 0, -1, digit);
+    projectiles.push(proj);
+}
+// ======================
+// Problem spawning
+// ======================
+function trySpawnProblem() {
+    const now = frames;
+
+    // Calculate spawn rate and timing
+    const spawnRate = 0.001 + 0.000015 * frames;
+    const MIN_SPAWN_TIME = 100 + 100 / (0.003 * frames + 1);
+    const maxSpawnTime = MIN_SPAWN_TIME + (100 + 1000 / (1 + frames));
+    const timeSinceLast = now - lastSpawnTime;
+
+    if (timeSinceLast < MIN_SPAWN_TIME) {
+        // Too soon, do nothing
+        return;
+    } else if (timeSinceLast >= maxSpawnTime) {
+        // Max time exceeded → force spawn
+        spawnProblem();
+        score++;
+        lastSpawnTime = now;
+        console.log("Spawned at max");
+    } else {
+        // Random chance to spawn
+        if (Math.random() < spawnRate) {
+            spawnProblem();
+            score++;
+            lastSpawnTime = now;
+            console.log("Spawned in between min and max");
+        }
+    }
+}
+
+function spawnProblem() {
+    const blocked = [];
+
+    // Build blocked x-ranges based on problems near the spawn limit
+    for (let p of problems) {
+        if (p.y < SPAWN_Y_LIMIT) {
+            blocked.push({
+                x: p.x - H_PADDING,
+                width: PROBLEM_WIDTH + H_PADDING * 2
+            });
+        }
+    }
+
+    const freeXs = [];
+    let x = 0;
+
+    while (x + PROBLEM_WIDTH < canvas.width) {
+        let free = true;
+
+        for (let r of blocked) {
+            if (x < r.x + r.width && x + PROBLEM_WIDTH > r.x) {
+                free = false;
+                x = r.x + r.width; // skip past this blocked area
+                break;
+            }
+        }
+
+        if (free) {
+            freeXs.push(x);
+            x += PROBLEM_WIDTH; // move to next potential slot
+        }
+    }
+
+    if (freeXs.length === 0) return; // no free space
+
+    // Pick a random free x-position
+    const spawnX = freeXs[Math.floor(Math.random() * freeXs.length)];
+
+    // Spawn new problem at the top
+    problems.push(new problem(spawnX, 0));
+}
+
+
+
+// Key press handling is now moved to the end of the file for better organization and to ensure all classes are defined before they are used.
+window.addEventListener('keydown', (e) => {
+    //console.log("Key pressed:", e.code); // Debug statement to check which key is pressed
+    
+
+    switch (e.code) {
+        case 'ArrowLeft':
+        case 'KeyA':
+            leftKey = true;
+            //console.log("Left key pressed, setting leftKey to true..."); // Debug statement to confirm leftKey is set
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            rightKey = true;
+            //console.log("Right key pressed, setting rightKey to true..."); // Debug statement to confirm rightKey is set
+            break;
+    }
+    // Top row numbers (0-9)
+    if (e.code.startsWith('Digit')) {
+        const digit = parseInt(e.code.slice(5)); // 'Digit0' -> 0
+        shootDigit(digit);
+    }
+
+    // Numpad numbers (0-9)
+    if (e.code.startsWith('Numpad')) {
+        const digit = parseInt(e.code.slice(6)); // 'Numpad0' -> 0
+        shootDigit(digit);
+    }
+});
+//Key release handling
+window.addEventListener('keyup', (e) => {
+    //console.log("Key pressed:", e.code); // Debug statement to check which key is released
+    switch (e.code) {
+        case 'ArrowLeft':
+        case 'KeyA':
+            leftKey = false;
+            break;
+        case 'ArrowRight':
+        case 'KeyD':
+            rightKey = false;
+            break;
+    }
+});
