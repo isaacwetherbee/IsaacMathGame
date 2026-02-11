@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 let leftKey = false;
 let rightKey = false;
 let GameState = 0;
-
+let gameOver = false;
 // Set the canvas size
 canvas.width = 800;   // desired width
 canvas.height = 600;  // desired height
@@ -28,6 +28,17 @@ const stars = [];
 for (let i = 0; i < STAR_COUNT; i++) {
     stars.push(new star(canvas.width, canvas.height));
 }
+
+
+// play button variables
+const playButton = {
+    x: 0,
+    y: 0,
+    width: 220,
+    height: 70
+};
+
+
 //Testing player class
 console.log("Hello, World! Welcome to Isaac's Math Game!");
 
@@ -50,10 +61,26 @@ console.log('projectile class exists:', typeof projectile);
 
 // Game loop
 function gameLoop() {
+    if (GameState === 0) {
+        //Menu
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStartScreen(ctx, canvas);
+        requestAnimationFrame(gameLoop);
+        return;
+
+    }
+    if (GameState === 2 && gameOver) {
+        // Game over screen
+        problems = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStartScreen(ctx, canvas);
+        requestAnimationFrame(gameLoop);
+        return;
+    }
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    
+
     for (let s of stars) {
         s.update(canvas.width, canvas.height);
         s.draw(ctx);
@@ -143,6 +170,7 @@ function gameLoop() {
         gameOver = true;
         GameState = 3;
         console.log("Game Over! Final Score: " + score);
+        GameState=2;
         break;
         
     }
@@ -161,6 +189,49 @@ function gameLoop() {
 
 
 function addScore(s) { score += s; }
+
+function drawStartScreen(ctx, canvas) {
+    // Draw the title
+    ctx.fillStyle = "white";
+    ctx.font = "bold 48px Arial";
+    const title = "MATH GAME";
+    const titleWidth = ctx.measureText(title).width;
+    const titleX = (canvas.width - titleWidth) / 2;
+    ctx.fillText(title, titleX, 180);
+
+    // Position the play button dynamically
+    playButton.x = (canvas.width - playButton.width) / 2;
+    playButton.y = 260;
+
+    // Draw the play button
+    ctx.fillStyle = "red";
+    ctx.fillRect(playButton.x, playButton.y, playButton.width, playButton.height);
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(playButton.x, playButton.y, playButton.width, playButton.height);
+
+    // Draw the "PLAY" text centered inside the button
+    ctx.fillStyle = "white";
+    ctx.font = "bold 32px Arial";
+    drawCenteredString(ctx, "PLAY", playButton);
+}
+
+// Utility to draw text centered in a rectangle (fixed)
+function drawCenteredString(ctx, text, rect) {
+    const metrics = ctx.measureText(text);
+    const textWidth = metrics.width;
+
+    // Use actualBoundingBoxAscent for better vertical alignment if supported
+    const textHeight = metrics.actualBoundingBoxAscent || 24; // fallback if unsupported
+    const textX = rect.x + (rect.width - textWidth) / 2;
+    const textY = rect.y + (rect.height + textHeight) / 2;
+
+    ctx.fillText(text, textX, textY);
+}
+
+
+
 
 // ======================
 // Shoot projectile
@@ -298,5 +369,34 @@ window.addEventListener('keyup', (e) => {
         case 'KeyD':
             rightKey = false;
             break;
+    }
+});
+canvas.addEventListener("mousedown", (e) => {
+    // Only respond if we're on the start screen or game over screen
+    if (GameState === 0 || GameState === 2) {
+        // Get mouse position relative to canvas
+        const rect = canvas.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+
+        // Check if Play button was clicked
+        if (
+            mx >= playButton.x &&
+            mx <= playButton.x + playButton.width &&
+            my >= playButton.y &&
+            my <= playButton.y + playButton.height
+        ) {
+            // Start the game
+            GameState = 2;
+            gameOver = false;
+            health = maxHealth;
+            score = 0;
+            frames = 0;
+            timeSinceLast = 0;
+            now = 0;
+            problems = [];
+            projectiles = [];
+            spawnProblem();
+        }
     }
 });
