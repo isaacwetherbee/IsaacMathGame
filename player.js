@@ -1,4 +1,5 @@
 class player {
+  /*
   constructor(x = 0, y = 0) {
     this.position = { x, y };
     this.size = 20; // triangle size
@@ -57,5 +58,6 @@ class player {
     ctx.closePath();
     ctx.fill();
   }
+  */
 }
 
