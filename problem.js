@@ -1,4 +1,5 @@
 class problem {
+  /*
   // ======================
   // Static config / toggles
   // ======================
@@ -232,5 +233,6 @@ class problem {
   }
 
   setX(x) { this.x = x; }
+  */
 }
 
