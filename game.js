@@ -267,25 +267,4 @@ console.log(
 );
 
 // ACTUAL INSTANTIATION TEST
-let testPlayer = null;
-
-if (typeof window.player === "function") {
-    testPlayer = new player(400, 300);
-    console.log("Player instance created:", testPlayer);
-} else {
-    console.error("player class NOT loaded");
-}
-
-function loop() {
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (testPlayer) {
-        testPlayer.draw(ctx);
-    }
-
-    requestAnimationFrame(loop);
-}
-
-loop();
 
