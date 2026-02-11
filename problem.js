@@ -1,5 +1,5 @@
 class problem {
-  /*
+  
   // ======================
   // Static config / toggles
   // ======================
@@ -12,22 +12,22 @@ class problem {
   static BLINK_DURATION = 30;
   static BLINK_RATE = 5; 
 
-  static setAllowAddition(v) { Problem.allowAdd = v; }
-  static setAllowSubtraction(v) { Problem.allowSub = v; }
-  static setAllowMultiplication(v) { Problem.allowMul = v; }
-  static setAllowDivision(v) { Problem.allowDiv = v; }
-  static setAllowAlgebra(v) { Problem.allowAlgebra = v; }
-
+  static setAllowAddition(v) { problem.allowAdd = v; }
+  static setAllowSubtraction(v) { problem.allowSub = v; }
+  static setAllowMultiplication(v) { problem.allowMul = v; }
+  static setAllowDivision(v) { problem.allowDiv = v; }
+  static setAllowAlgebra(v) { problem.allowAlgebra = v; }
+  
   static enableAll() {
-    Problem.allowAdd = Problem.allowSub =
-    Problem.allowMul = Problem.allowDiv =
-    Problem.allowAlgebra = true;
+    problem.allowAdd = problem.allowSub =
+    problem.allowMul = problem.allowDiv =
+    problem.allowAlgebra = true;
   }
 
   static disableAll() {
-    Problem.allowAdd = Problem.allowSub =
-    Problem.allowMul = Problem.allowDiv =
-    Problem.allowAlgebra = false;
+    problem.allowAdd = problem.allowSub =
+    problem.allowMul = problem.allowDiv =
+    problem.allowAlgebra = false;
   }
 
   // ======================
@@ -60,11 +60,11 @@ class problem {
   // ======================
   selectAndGenerate() {
     const ops = [];
-    if (Problem.allowAdd) ops.push(1);
-    if (Problem.allowSub) ops.push(2);
-    if (Problem.allowMul) ops.push(3);
-    if (Problem.allowDiv) ops.push(4);
-    if (Problem.allowAlgebra) ops.push(5);
+    if (problem.allowAdd) ops.push(1);
+    if (problem.allowSub) ops.push(2);
+    if (problem.allowMul) ops.push(3);
+    if (problem.allowDiv) ops.push(4);
+    if (problem.allowAlgebra) ops.push(5);
 
     if (ops.length === 0) ops.push(1);
 
@@ -85,23 +85,23 @@ class problem {
 
     switch (this.operation) {
       case 1:
-        this.a = randInt(1, 12);
-        this.b = randInt(1, 12);
+        this.a = problem.randInt(1, 12);
+        this.b = problem.randInt(1, 12);
         this.solution = this.a + this.b;
         break;
       case 2:
-        this.a = randInt(1, 12);
-        this.b = randInt(1, this.a);
+        this.a = problem.randInt(1, 12);
+        this.b = problem.randInt(1, this.a);
         this.solution = this.a - this.b;
         break;
       case 3:
-        this.a = randInt(1, 12);
-        this.b = randInt(1, 12);
+        this.a = problem.randInt(1, 12);
+        this.b = problem.randInt(1, 12);
         this.solution = this.a * this.b;
         break;
       case 4:
-        this.b = randInt(1, 12);
-        this.solution = randInt(1, 12);
+        this.b = problem.randInt(1, 12);
+        this.solution = problem.randInt(1, 12);
         this.a = this.b * this.solution;
         break;
     }
@@ -115,9 +115,9 @@ class problem {
   generateAlgebra() {
     this.isAlgebra = true;
 
-    const op = randInt(1, 4);
-    const xVal = randInt(1, 12);
-    const otherNum = randInt(1, 12);
+    const op = problem.randInt(1, 4);
+    const xVal = problem.randInt(1, 12);
+    const otherNum = problem.randInt(1, 12);
     let result = 0;
 
     switch (op) {
@@ -184,7 +184,7 @@ class problem {
   // ======================
   draw(ctx) {
     if (this.isCorrect) {
-      if (Math.floor(this.blinkFrames / Problem.BLINK_RATE) % 2 === 0) {
+      if (Math.floor(this.blinkFrames / problem.BLINK_RATE) % 2 === 0) {
         return;
       }
     }
@@ -220,19 +220,24 @@ class problem {
   }
 
   getBounds() {
-    return {
-      x: this.x,
-      y: this.y - 18,
-      w: this.width,
-      h: this.height
-    };
-  }
+  return {
+    x: this.x,
+    y: this.y - 18,
+    width: this.width,
+    height: this.height
+  };
+}
+
 
   isOffScreen(screenHeight) {
     return this.y > screenHeight + 30;
   }
 
   setX(x) { this.x = x; }
-  */
+  
+  static randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 }
 
