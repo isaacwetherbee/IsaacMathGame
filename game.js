@@ -251,7 +251,7 @@ function spawnproblem() {
 window.onload = init;
 */
 
-
+/*
 const canvas = document.getElementById("game");
 console.log("Canvas:", canvas);
 
@@ -265,6 +265,6 @@ console.log(
     "problem class:", typeof window.problem,
     "projectile class:", typeof window.projectile
 );
-
-// ACTUAL INSTANTIATION TEST
+__________________________________________________________
+*/
 
