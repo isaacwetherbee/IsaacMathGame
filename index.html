@@ -4,15 +4,22 @@
     <meta charset="UTF-8" />
     <title>Isaac Math Game</title>
     <style>
-        body {
-            margin: 0;
-            background: black;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+body {
+    margin: 0;
+    background: black;
+    display: flex;              /* enable flexbox */
+    justify-content: center;    /* horizontal center */
+    align-items: center;        /* vertical center */
+    height: 100vh;              /* full viewport height */
+    overflow: hidden;
+}
+
+canvas {
+    border: 3px solid white;    /* white border */
+    background: black;          /* optional, same as body */
+}
+</style>
+
 </head>
 <body>
 
