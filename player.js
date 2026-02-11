@@ -1,4 +1,33 @@
 class player {
+
+  constructor(x = 0, y = 0) {
+        this.position = {
+            x: x,
+            y: y
+        };
+
+        this.size = 20; // size of the triangle
+    }
+
+    move(dx, dy) {
+        this.position.x += dx;
+        this.position.y += dy;
+    }
+
+    getX() {
+        return this.position.x;
+    }
+
+    getY() {
+        return this.position.y;
+    }
+
+    getSize() {
+        return this.size;
+    }
+
+
+  
   /*
   constructor(x = 0, y = 0) {
     this.position = { x, y };
@@ -59,5 +88,11 @@ class player {
     ctx.fill();
   }
   */
+
+
+    
 }
+
+  
+
 
