@@ -11,7 +11,7 @@ class menuButton {
 
     draw(ctx) {
         ctx.font = this.font;
-
+   
         // Color shows state
         if (this.enabled) {
             ctx.fillStyle = "rgb(60, 180, 75)"; // green
