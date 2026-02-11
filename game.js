@@ -22,7 +22,12 @@ lastSpawnTime = 0;
 let frames = 0;
 let score = 0;
 let deltaTime = 0.016; // approx 60 FPS
-
+//Stars
+const STAR_COUNT = 100; // number of stars in the background
+const stars = [];
+for (let i = 0; i < STAR_COUNT; i++) {
+    stars.push(new star(canvas.width, canvas.height));
+}
 //Testing player class
 console.log("Hello, World! Welcome to Isaac's Math Game!");
 
@@ -48,6 +53,11 @@ function gameLoop() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    
+    for (let s of stars) {
+        s.update(canvas.width, canvas.height);
+        s.draw(ctx);
+    }
     // Update player position
     if (leftKey){p.move(-5, 0);console.log("Left key pressed, moving left..."); } 
     if (rightKey){p.move(5, 0);console.log("Right key pressed, moving right..."); } 
