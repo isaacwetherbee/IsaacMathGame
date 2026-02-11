@@ -1,3 +1,18 @@
+// Create player at (100, 100)
+const player = new Player(100, 100);
+
+// Log initial position
+console.log("Initial Position:");
+console.log("X:", player.getX(), "Y:", player.getY());
+
+// Move player
+player.move(25, -10);
+
+// Log new position
+console.log("After Move:");
+console.log("X:", player.getX(), "Y:", player.getY());
+
+
 /*
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
