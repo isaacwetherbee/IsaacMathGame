@@ -1,4 +1,5 @@
 class projectile {
+
   constructor(startX, startY, dirX, dirY, digit) {
     this.position = { x: startX, y: startY };
     this.digit = digit;
@@ -33,8 +34,8 @@ class projectile {
     return {
       x: this.position.x - size / 2,
       y: this.position.y - size / 2,
-      w: size,
-      h: size
+      width: size,
+      height: size
     };
   }
 
