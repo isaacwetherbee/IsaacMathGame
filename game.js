@@ -7,7 +7,7 @@ let GameState = 0;//0 menu, 1 playing, 2 game over screen, 3 leaderboard
 let gameOver = false;
 // Set the canvas size
 canvas.width = 800;   // desired width
-canvas.height = 600;  // desired height
+canvas.height = 600;  // desired height 
 
 //projectile variables
 let projectiles = []; // array to hold Projectile objects
