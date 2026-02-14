@@ -2,12 +2,13 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 let leftKey = false;
-let rightKey = false; 
+let rightKey = false;
 let GameState = 0;//0 menu, 1 playing, 2 game over screen, 3 leaderboard
 let gameOver = false;
+
 // Set the canvas size
 canvas.width = 800;   // desired width
-canvas.height = 600;  // desired height 
+canvas.height = 600;  // desired height
 
 //projectile variables
 let projectiles = []; // array to hold Projectile objects
@@ -22,6 +23,9 @@ let lastSpawnTime = 0;
 let frames = 0;
 let score = 0;
 let deltaTime = 0.016; // approx 60 FPS
+let LastFrameTime = 0;
+const frameInterval = 1000 / 60; // 60 FPS logic
+
 //Stars
 const STAR_COUNT = 100; // number of stars in the background
 const stars = [];
@@ -116,9 +120,11 @@ loadHighScores();
 //shootDigit(5); // Test shooting a digit projectile
 
 // Game loop
-function gameLoop() {
+function gameLoop(currentTime) {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    
 
     for (let s of stars) {
         s.update(canvas.width, canvas.height);
@@ -162,7 +168,15 @@ function gameLoop() {
     p.update();
     p.draw(ctx);
     }
-    frames++;
+
+    if (currentTime - LastFrameTime >= frameInterval) {
+        frames++;
+        
+        LastFrameTime += frameInterval; // stable timing
+    }
+    
+
+
     trySpawnProblem();
     for (let p of problems) {
     p.update(deltaTime);
