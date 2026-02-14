@@ -164,25 +164,27 @@ function gameLoop(currentTime) {
     if (leftKey){p.move(-8, 0); } 
     if (rightKey){p.move(8, 0); } 
 
-    for (let p of projectiles) {
-    p.update();
-    p.draw(ctx);
-    }
+   
 
     if (currentTime - LastFrameTime >= frameInterval) {
         frames++;
-        
+
+        for (let p of projectiles) {
+        p.update();
+        p.draw(ctx);
+        }
+        for (let p of problems) {
+        p.update(deltaTime);
+        //console.log(`Drawing problem at (${p.x}, ${p.y}): ${p.problemText}`);
+        p.draw(ctx);
+        }
         LastFrameTime += frameInterval; // stable timing
     }
     
 
 
     trySpawnProblem();
-    for (let p of problems) {
-    p.update(deltaTime);
-    //console.log(`Drawing problem at (${p.x}, ${p.y}): ${p.problemText}`);
-    p.draw(ctx);
-    }
+    
 
     projectiles = projectiles.filter(proj => {
     // Check collision against all problems
