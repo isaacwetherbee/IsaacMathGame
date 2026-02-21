@@ -1,4 +1,4 @@
-class problem {
+ class problem {
   
   // ======================
   // Static config / toggles
@@ -8,6 +8,7 @@ class problem {
   static allowMul = true;
   static allowDiv = true;
   static allowAlgebra = true;
+  static allowAlgebraTwoStep = true;
 
   static BLINK_DURATION = 30;
   static BLINK_RATE = 5; 
@@ -17,11 +18,13 @@ class problem {
   static setAllowMultiplication(v) { problem.allowMul = v; }
   static setAllowDivision(v) { problem.allowDiv = v; }
   static setAllowAlgebra(v) { problem.allowAlgebra = v; }
-  
+  static setAllowAlgebraTwoStep(v) { problem.allowAlgebraTwoStep = v; }
+
   static enableAll() {
     problem.allowAdd = problem.allowSub =
     problem.allowMul = problem.allowDiv =
     problem.allowAlgebra = true;
+    problem.allowAlgebraTwoStep = true;
   }
 
   static disableAll() {
@@ -34,7 +37,7 @@ class problem {
   // Constructor
   // ======================
   constructor(startX, startDigitIndex) {
-    this.speed = 2;
+    
 
     this.isCorrect = false;
     this.blinkFrames = 0;
@@ -53,6 +56,12 @@ class problem {
 
     this.width = 0;
     this.height = 0;
+    if (this.isAlgebraTwoStep) {
+      this.speed = 0.5;
+    } else {
+      this.speed = 2;
+    }
+
   }
 
   // ======================
@@ -65,6 +74,7 @@ class problem {
     if (problem.allowMul) ops.push(3);
     if (problem.allowDiv) ops.push(4);
     if (problem.allowAlgebra) ops.push(5);
+    if (problem.allowAlgebraTwoStep) ops.push(6);
 
     if (ops.length === 0) ops.push(1);
 
@@ -72,7 +82,9 @@ class problem {
 
     if (this.operation === 5) {
       this.generateAlgebra();
-    } else {
+    } else if(this.operation === 6) {
+      this.generateAlgebraTwoStep();
+    }else{
       this.generateArithmetic();
     }
   }
@@ -144,7 +156,69 @@ class problem {
     this.solutionStr = String(this.solution);
     this.currentAnswer = Array.from(this.solutionStr, () => "_");
   }
+  generateAlgebraTwoStep() {
+    this.isAlgebraTwoStep = true;
 
+    const op = problem.randInt(1, 4);
+    const xVal = problem.randInt(1, 12);
+    const otherNum1 = problem.randInt(1, 12);
+    const otherNum2 = problem.randInt(1, 12);
+    let result1 = 0;
+    let result2 = 0;
+    let LHS = "";
+    let RHS = "";
+    this.solution = xVal;
+
+    switch (op) {
+  case 1:
+    result1 = xVal + otherNum1;
+    LHS = `(x + ${otherNum1})`;
+    break;
+
+  case 2:
+    result1 = otherNum1;
+    LHS = `(${otherNum1+xVal} - x)`;
+    break;
+
+  case 3:
+    result1 = xVal * otherNum1;
+    LHS = `(x × ${otherNum1})`;
+    break;
+
+  case 4:
+    result1 = otherNum1;
+    LHS = `(${otherNum1*xVal} / x)`;
+    break;
+}
+
+
+    const op2 = problem.randInt(1, 4);
+
+
+    switch (op2) {
+    case 1:
+    result2 = result1 + otherNum2;
+    this.problemText = `${LHS} + ${otherNum2} = ${result2}, x`;
+    break;
+
+    case 2:
+    result2 = result1 - otherNum2;
+    this.problemText = `${LHS} - ${otherNum2} = ${result2}, x`;
+    break;
+
+    case 3:
+    result2 = result1 * otherNum2;
+    this.problemText = `${LHS} × ${otherNum2} = ${result2}, x`;
+    break;
+
+    case 4:
+    result2 = result1 / otherNum2;
+    this.problemText = `${LHS} / ${otherNum2} = ${result1} / ${otherNum2}, x`;
+    break;
+  }
+
+
+  } 
   // ======================
   // Update
   // ======================
@@ -241,4 +315,3 @@ class problem {
 
 }
 
- 
