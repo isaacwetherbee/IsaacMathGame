@@ -16,9 +16,9 @@ let lastShotTime = 0;
 const SHOOT_COOLDOWN_MS = 100; // 100ms cooldown between shots
 //problem variables
 let problems = [];
-const PROBLEM_WIDTH = 80;
+const PROBLEM_WIDTH = 160;
 const SPAWN_Y_LIMIT = 150; // Y position to check for blocking
-const H_PADDING = 10; // horizontal padding between problems
+const H_PADDING = 1 // horizontal padding between problems
 let lastSpawnTime = 0;
 let frames = 0;
 let score = 0;
@@ -35,7 +35,7 @@ for (let i = 0; i < STAR_COUNT; i++) {
 //Toggle buttons
 let bw = 40;
 let bh = 30;
-let startY = 200;
+let startY = 100;
 let startX=10;
 
 
@@ -44,8 +44,12 @@ const subBtn = new menuButton(startX, startY + 70, bw, bh, "-", true);
 const mulBtn = new menuButton(startX, startY + 140, bw, bh, "x", true);
 const divBtn = new menuButton(startX, startY + 210, bw, bh, "/", true);
 const algBtn = new menuButton(startX, startY + 280, bw, bh, "x=?", true);
+const TwoStepAlgBtn = new menuButton(startX, startY + 350, bw+20, bh, "2,x=?", true);
+let MenuButtons = [addBtn, subBtn, mulBtn, divBtn, algBtn, TwoStepAlgBtn];
 
-let MenuButtons = [addBtn, subBtn, mulBtn, divBtn, algBtn];
+const TrainingModeBtn = new menuButton(canvas.width/2-((bw+150)/2), 50, bw+150, bh+10, "TRAINING MODE", false);
+
+
 
 // play button variables
 const playButton = {
@@ -75,7 +79,7 @@ playAgainButton = {
 //HighScore variables
 let highScores = [];
 let highScoreInitials = [];
-let MAX_SCORES = 10;
+let MAX_SCORES = 5;
 let highScoreSaved = false;
 let enteringInitials = false;
 let playerInitials = "";
@@ -97,8 +101,6 @@ soundManager.load("CorrectSoundEffect", "CorrectSoundEffect.wav");
 
 
 
-
-
 //Testing player class
 console.log("Hello, World! Welcome to Isaac's Math Game!");
 
@@ -116,8 +118,27 @@ gameLoop();
 
 console.log('projectile class exists:', typeof projectile);
 
-loadHighScores();
+
 //shootDigit(5); // Test shooting a digit projectile
+
+
+window.addEventListener("load", () => {
+    console.log("Firebase available:", window.fb);
+    console.log("window.fb:", window.fb);
+    console.log("window.fb.query:", window.fb.query);
+    /*const q = window.fb.query(
+        window.fb.collection(window.db, "highscores"),
+        window.fb.where("modeId", "==", modeId),
+        window.fb.orderBy("score", "desc"),
+        window.fb.limit(MAX_SCORES)
+    );*/
+    // safe to use window.fb here
+});
+
+
+
+
+
 
 // Game loop
 function gameLoop(currentTime) {
@@ -174,11 +195,14 @@ function gameLoop(currentTime) {
         p.draw(ctx);
         }
         for (let p of problems) {
-        p.update(deltaTime);
+        if(TrainingModeBtn.isEnabled()){p.update(deltaTime/2);}else{p.update(deltaTime);}
+            
         //console.log(`Drawing problem at (${p.x}, ${p.y}): ${p.problemText}`);
         p.draw(ctx);
         }
+       
         LastFrameTime += frameInterval; // stable timing
+         requestAnimationFrame(gameLoop);
     }
     
 
@@ -274,31 +298,82 @@ function gameLoop(currentTime) {
         
         console.log("Game Over! Final Score: " + score);
 
-        GameState=2;
-        if (qualifies(score) && !highScoreSaved) {
+        GameState = 2;
+        loadHighScores();
+        let result = false;
+        console.log("Can HighScores Be saved: "+!TrainingModeBtn.isEnabled());
+        let TrainingModeStatus = !TrainingModeBtn.isEnabled();
+        qualifies(score).then(result => {
+        console.log("qualifies(score):", result);
+        
+        if (result && !highScoreSaved && TrainingModeStatus) {
             GameState = 4;
             enteringInitials = true;
-        }
+        }else{GameState = 2;}
+        });
+
+        //console.log("Game Over! Final Score: " + score);
+        //console.log("qualifies(score): " + result);
+
+        //console.log("highScoreSaved: " + highScoreSaved+" Im taking opposite of this for testing so "+ !highScoreSaved);
+
+        //console.log(result && !highScoreSaved);
+        
         
         break;
         
     }
 }
+for (let prob of problems) {
+    for (let prob2 of problems) {
+        const probBounds = prob.getBounds();
+        const prob2Bounds = prob2.getBounds();
+        const intersects = !(
+        probBounds.x + probBounds.width < prob2Bounds.x ||
+        probBounds.x > prob2Bounds.x + prob2Bounds.width ||
+        probBounds.y + probBounds.height < prob2Bounds.y ||
+        probBounds.y > prob2Bounds.y + prob2Bounds.height
+    );
+        if (intersects) {
+            if(prob.speed>prob2.speed) {
+                prob.speed = prob2.speed;
+            }else{
+                prob2.speed = prob.speed;
+            }
+        }
+
+    }
+}
+
 
     if(health <= 0) {
         gameOver = true;
-        GameState=2;
-        if (qualifies(score) && !highScoreSaved) {
+        GameState = 2;
+        loadHighScores();
+        let result = false;
+        let TrainingModeStatus = !TrainingModeBtn.isEnabled();
+        qualifies(score).then(result => {
+        console.log("qualifies(score):", result);
+        if (result && !highScoreSaved && TrainingModeStatus) {
             GameState = 4;
             enteringInitials = true;
-        }
+        }else{GameState = 2;}
+        });
+
+        //console.log("Game Over! Final Score: " + score);
+        //console.log("qualifies(score): " + result);
+
+        //console.log("highScoreSaved: " + highScoreSaved+" Im taking opposite of this for testing so "+ !highScoreSaved);
+
+        //console.log(result && !highScoreSaved);
+        
     }
 
     // Draw player
     p.draw(ctx);
 
     // Next frame
-    requestAnimationFrame(gameLoop);
+    
 }
 
 
@@ -398,6 +473,9 @@ drawCenteredString(ctx, "LEADERBOARD", leaderboardButton);
     mulBtn.draw(ctx);
     divBtn.draw(ctx);
     algBtn.draw(ctx);
+    TwoStepAlgBtn.draw(ctx);
+
+    TrainingModeBtn.draw(ctx);
 
 }
 
@@ -463,7 +541,7 @@ function drawGameOverScreen(ctx) {
 function drawLeaderboardScreen(ctx) {
     const canvasWidth = ctx.canvas.width;
     const canvasHeight = ctx.canvas.height;
-
+    loadHighScores(); // Ensure we have the latest scores before drawing
     // ===== Background title =====
     ctx.fillStyle = "white";
     ctx.font = "bold 48px Arial";
@@ -627,13 +705,23 @@ function shootDigit(digit) {
 // ======================
 function trySpawnProblem() {
     const now = frames;
-    console.log("trying to spawn problem... Frames since last spawn: " + (now - lastSpawnTime));
+    //console.log("trying to spawn problem... Frames since last spawn: " + (now - lastSpawnTime));
     // Calculate spawn rate and timing
     const spawnRate = 0.001 + 0.0000015 * frames;
-    const MIN_SPAWN_TIME = 50 + 1 / (0.0006 * frames + 1);
+    let MIN_SPAWN_TIME = 50 + 1 / (0.0006 * frames + 1);
+
+    if (TrainingModeBtn.isEnabled){
+        console.log("Training Mode Enabled, adjusting spawn times...");
+        MIN_SPAWN_TIME += 50; // Double the minimum spawn time for training mode
+        
+    }else{
+        console.log("Training Mode Disabled, normal spawn times...");
+    }
+
     const maxSpawnTime = MIN_SPAWN_TIME + (100 + 1000 / (1 + frames));
     const timeSinceLast = now - lastSpawnTime;
-    console.log(now);
+    //console.log(now);
+
     if (timeSinceLast < MIN_SPAWN_TIME) {
         // Too soon, do nothing
         return;
@@ -642,22 +730,26 @@ function trySpawnProblem() {
         spawnProblem();
         score++;
         lastSpawnTime = now;
-        console.log("Spawned at max");
+        //console.log("Spawned at max");
     } else {
         // Random chance to spawn
         if (Math.random() < spawnRate) {
             spawnProblem();
             score++;
             lastSpawnTime = now;
-            console.log("Spawned in between min and max");
+            //console.log("Spawned in between min and max");
         }
     }
 }
 
 function spawnProblem() {
+
+    // Create the problem first so we know its true width
+    
+
     const blocked = [];
 
-    // Build blocked x-ranges based on problems near the spawn limit
+    // Build blocked ranges using each problem's REAL width
     for (let p of problems) {
         if (p.y < SPAWN_Y_LIMIT) {
             blocked.push({
@@ -670,31 +762,34 @@ function spawnProblem() {
     const freeXs = [];
     let x = 0;
 
-    while (x + PROBLEM_WIDTH < canvas.width) {
+    // Use realWidth instead of PROBLEM_WIDTH
+    while (x + PROBLEM_WIDTH <= canvas.width) {
+
         let free = true;
 
         for (let r of blocked) {
             if (x < r.x + r.width && x + PROBLEM_WIDTH > r.x) {
                 free = false;
-                x = r.x + r.width; // skip past this blocked area
+                x = r.x + r.width;
                 break;
             }
         }
 
         if (free) {
             freeXs.push(x);
-            x += PROBLEM_WIDTH; // move to next potential slot
+            x += PROBLEM_WIDTH;
         }
     }
 
-    if (freeXs.length === 0) return; // no free space
+    if (freeXs.length === 0) return;
 
-    // Pick a random free x-position
     const spawnX = freeXs[Math.floor(Math.random() * freeXs.length)];
 
-    // Spawn new problem at the top
+   
+
     problems.push(new problem(spawnX, 0));
 }
+
 
 
 
@@ -806,7 +901,15 @@ canvas.addEventListener("mousedown", (e) => {
             algBtn.toggle();
             problem.setAllowAlgebra(algBtn.isEnabled());
         }
-
+        if (TwoStepAlgBtn.contains(mx, my)) {
+            TwoStepAlgBtn.toggle();
+            problem.setAllowAlgebraTwoStep(TwoStepAlgBtn.isEnabled());
+        }
+        if (TrainingModeBtn.contains(mx, my)) {
+            TrainingModeBtn.toggle();
+            
+        }
+        
         // Check if Play button was clicked
         if (
             mx >= playButton.x &&
@@ -853,81 +956,80 @@ canvas.addEventListener("mousedown", (e) => {
 });
 
 
-function loadHighScores() {
+async function loadHighScores() {
+
+    const modeId = getModeId();
+    //console.log("Loading high scores for mode:", modeId);
+
+    const q = window.fb.query(
+        window.fb.collection(window.db, "highscores"),
+        window.fb.where("modeId", "==", modeId),
+        window.fb.orderBy("score", "desc"),
+        window.fb.limit(MAX_SCORES)
+    );
+    
+
+    const snapshot = await window.fb.getDocs(q);
+
     highScores = [];
     highScoreInitials = [];
 
-    const savedData = localStorage.getItem("HighScores");
-
-    if (!savedData) return;
-
-    const lines = JSON.parse(savedData);
-
-    for (let entry of lines) {
-        highScoreInitials.push(entry.initials);
-        highScores.push(entry.score);
-    }
-
-    console.log("Loaded scores:", highScores);
-    console.log("Loaded initials:", highScoreInitials);
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        highScores.push(data.score);
+        highScoreInitials.push(data.initials);
+    });
 }
-function saveHighScores(initials) {
 
-    highScores.push(score);
-    highScoreInitials.push(initials);
+async function saveHighScores(initials) {
 
-    score = 0;
-    highScoreSaved = true;
+    const modeId = getModeId();
 
-    // Sort descending (keep both arrays synced)
-    for (let i = 0; i < highScores.length; i++) {
-        for (let j = i + 1; j < highScores.length; j++) {
-            if (highScores[j] > highScores[i]) {
-
-                // Swap scores
-                [highScores[i], highScores[j]] = 
-                [highScores[j], highScores[i]];
-
-                // Swap initials
-                [highScoreInitials[i], highScoreInitials[j]] = 
-                [highScoreInitials[j], highScoreInitials[i]];
-            }
+    await window.fb.addDoc(
+        window.fb.collection(window.db, "highscores"),
+        {
+            initials: initials,
+            score: score,
+            modeId: modeId,
+            timestamp: Date.now()
         }
-    }
-
-    // Trim to MAX_SCORES
-    while (highScores.length > MAX_SCORES) {
-        highScores.pop();
-        highScoreInitials.pop();
-    }
-
-    // Save to localStorage
-    const dataToSave = [];
-
-    for (let i = 0; i < highScores.length; i++) {
-        dataToSave.push({
-            initials: highScoreInitials[i],
-            score: highScores[i]
-        });
-    }
-
-    localStorage.setItem("HighScores", JSON.stringify(dataToSave));
-    console.log("Saved scores:", highScores);
-    console.log("Saved initials:", highScoreInitials);
+    );
 }
 
-function qualifies(newScore) {
+async function qualifies(newScore) {
 
-    // If leaderboard not full yet → auto qualifies
+    await loadHighScores();
+
     if (highScores.length < MAX_SCORES) {
         return true;
     }
 
-    // Find minimum score currently on leaderboard
     let minScore = Math.min(...highScores);
-
-    // Qualifies if greater than minimum
+    console.log("Minimum score to beat:", minScore);
     return newScore > minScore;
 }
 
 
+async function testFirebase() {
+    try {
+        await window.fb.addDoc(
+            window.fb.collection(window.db, "test"),
+            { message: "Connection works!", time: Date.now() }
+        );
+        //console.log("🔥 Firebase write successful");
+    } catch (e) {
+        console.error("Firebase error:", e);
+    }
+}
+async function initLeaderboard() {
+    await loadHighScores();
+    
+}
+
+function getModeId() {
+    
+    return MenuButtons
+        .map(button => button.isEnabled() ? "1" : "0")
+        .join("");
+
+}
