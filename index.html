@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Isaac Math Game</title>
     <style>
-body { 
+body {
     margin: 0;
     background: black;
     display: flex;              /* enable flexbox */
@@ -24,17 +24,49 @@ canvas {
 <body>
 
 <canvas id="game"></canvas>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+  import { 
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    limit,
+    getDocs,
+    where
+  } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-<!-- Load classes FIRST -->
- <script src="menuButton.js"></script>
- <script src="Sound.js"></script>
- <script src="SoundManager.js"></script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAfA0d-VxX9kjnYvR-Ms_gi1PUeTsJxkm4",
+    authDomain: "mathgame-3ee70.firebaseapp.com",
+    projectId: "mathgame-3ee70",
+    storageBucket: "mathgame-3ee70.firebasestorage.app",
+    messagingSenderId: "741762245570",
+    appId: "1:741762245570:web:2edbc45c8b5b2ee3032c5b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose to normal JS files
+  window.db = db;
+  window.fb = { collection, addDoc, query, orderBy, limit, getDocs, where };
+
+  console.log("Firebase connected successfully");
+</script>
+
+<script type="module">
+   // Firebase setup
+</script>
+
+<script src="menuButton.js"></script>
+<script src="Sound.js"></script>
+<script src="SoundManager.js"></script>
 <script src="./star.js"></script>
 <script src="./player.js"></script>
 <script src="./projectile.js"></script>
 <script src="./problem.js"></script>
-
-<!-- Main game last -->
 <script src="./game.js"></script>
 
 </body>
