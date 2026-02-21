@@ -1,7 +1,7 @@
 //Global variables
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-let leftKey = false; 
+let leftKey = false;
 let rightKey = false;
 let GameState = 0;//0 menu, 1 playing, 2 game over screen, 3 leaderboard
 let gameOver = false;
@@ -195,7 +195,13 @@ function gameLoop(currentTime) {
         p.draw(ctx);
         }
         for (let p of problems) {
-        if(TrainingModeBtn.isEnabled()){p.update(deltaTime/2);}else{p.update(deltaTime);}
+            let trainingMode = TrainingModeBtn.isEnabled();
+            if(trainingMode){
+                p.update(deltaTime/2);
+                console.log("Training mode: Slowing down problems for better learning...");
+            }else{
+                p.update(deltaTime);
+            }
             
         //console.log(`Drawing problem at (${p.x}, ${p.y}): ${p.problemText}`);
         p.draw(ctx);
@@ -709,8 +715,8 @@ function trySpawnProblem() {
     // Calculate spawn rate and timing
     const spawnRate = 0.001 + 0.0000015 * frames;
     let MIN_SPAWN_TIME = 50 + 1 / (0.0006 * frames + 1);
-
-    if (TrainingModeBtn.isEnabled){
+    let trainingMode = TrainingModeBtn.isEnabled();
+    if (trainingMode) {
         console.log("Training Mode Enabled, adjusting spawn times...");
         MIN_SPAWN_TIME += 50; // Double the minimum spawn time for training mode
         
