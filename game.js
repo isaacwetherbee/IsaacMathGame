@@ -1,7 +1,7 @@
 //Global variables
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-let leftKey = false;
+let leftKey = false; 
 let rightKey = false;
 let GameState = 0;//0 menu, 1 playing, 2 game over screen, 3 leaderboard
 let gameOver = false;
