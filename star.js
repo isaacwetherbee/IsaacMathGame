@@ -1,4 +1,4 @@
-class star {
+ class star {
     constructor(panelWidth, panelHeight) {
         this.x = Math.floor(Math.random() * panelWidth);
         this.y = Math.floor(Math.random() * panelHeight);
@@ -6,13 +6,17 @@ class star {
         this.speed = Math.floor(Math.random() * 2) + 1;  // 1–2 pixels per frame
     }
 
-    update(panelWidth, panelHeight) {
-        this.y += this.speed;
-
+    update(panelWidth, panelHeight, dt) {
+        this.y += this.speed*60*dt; // Move down based on speed and delta time
+        console.log("dt:", dt);
+        console.log("speed:", this.speed);
+        console.log("y before:", this.y);
         if (this.y > panelHeight) {
             this.y = 0;
             this.x = Math.floor(Math.random() * panelWidth);
         }
+        
+        
     }
 
     draw(ctx) {
