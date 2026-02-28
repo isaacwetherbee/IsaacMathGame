@@ -9,7 +9,7 @@ let gameOver = false;
 // Set the canvas size
 canvas.width = 800;   // desired width
 canvas.height = 600;  // desired height
-
+ 
 //projectile variables
 let projectiles = []; // array to hold Projectile objects
 let lastShotTime = 0;
