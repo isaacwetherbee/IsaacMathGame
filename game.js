@@ -22,6 +22,7 @@ const H_PADDING = 1 // horizontal padding between problems
 let lastSpawnTime = 0;
 let frames = 0;
 let score = 0;
+
 let deltaTime = 0.016; // approx 60 FPS
 let LastFrameTime = 0;
 const frameInterval = 1000 / 60; // 60 FPS logic
@@ -142,13 +143,25 @@ window.addEventListener("load", () => {
 
 // Game loop
 function gameLoop(currentTime) {
+   
+    requestAnimationFrame(gameLoop);
+
+        //console.log("Game loop running... Current time:", currentTime); // Debug statement to confirm game loop is running and check currentTime
+        
+        deltaTime = (currentTime - LastFrameTime) / 1000; // convert to seconds
+        //console.log("Delta time for this frame:", deltaTime); // Debug statement to check deltaTime calculation
+        LastFrameTime = currentTime;
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     
 
     for (let s of stars) {
-        s.update(canvas.width, canvas.height);
+        if (isNaN(deltaTime)) {deltaTime = 0.016;}
+        
+            
+        s.update(canvas.width, canvas.height, deltaTime);
+        
         s.draw(ctx);
     }
     
@@ -156,7 +169,7 @@ function gameLoop(currentTime) {
         //Menu
         
         drawStartScreen(ctx, canvas);
-        requestAnimationFrame(gameLoop);
+        
         return;
 
     }
@@ -165,29 +178,29 @@ function gameLoop(currentTime) {
         problems = [];
         
         drawGameOverScreen(ctx);
-        requestAnimationFrame(gameLoop);
+        
         return;
     }
     if (GameState === 3) {
         drawLeaderboardScreen(ctx);
-        requestAnimationFrame(gameLoop);
+       
         return;
     }
     if(GameState === 4) {
         drawSaveScoreScreen(ctx);
-        requestAnimationFrame(gameLoop);
+        
         return;
     }
     
     drawScore(ctx);
     drawHealthBar(ctx);
     // Update player position
-    if (leftKey){p.move(-8, 0); } 
-    if (rightKey){p.move(8, 0); } 
+    if (leftKey){p.move(-8* deltaTime * 60, 0); } 
+    if (rightKey){p.move(8* deltaTime * 60, 0); } 
 
    
 
-    if (currentTime - LastFrameTime >= frameInterval) {
+    
         frames++;
 
         for (let p of projectiles) {
@@ -207,9 +220,9 @@ function gameLoop(currentTime) {
         p.draw(ctx);
         }
        
-        LastFrameTime += frameInterval; // stable timing
-         requestAnimationFrame(gameLoop);
-    }
+        
+        
+    
     
 
 
