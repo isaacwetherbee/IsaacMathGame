@@ -8,9 +8,9 @@
 
     update(panelWidth, panelHeight, dt) {
         this.y += this.speed*60*dt; // Move down based on speed and delta time
-        console.log("dt:", dt); 
-        console.log("speed:", this.speed);
-        console.log("y before:", this.y);
+        //console.log("dt:", dt); 
+        //console.log("speed:", this.speed);
+        //console.log("y before:", this.y);
         if (this.y > panelHeight) {
             this.y = 0;
             this.x = Math.floor(Math.random() * panelWidth);
